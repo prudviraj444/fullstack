@@ -1,64 +1,73 @@
+const allUsers=document.getElementsByClassName('users')[0];
+const message=document.getElementsByClassName('message')[0];
+const searchField=document.getElementsByName('search')[0]; 
+var allUserData;
+searchField.addEventListener('keyup',function(){
+   const value= this.value;
+   const filteredUsers=allUserData.filter((user)=>{
+    return user.firstName.toLowerCase().startsWith(value);
+   })
+   removeotherusers();
+   loadUsers(filteredUsers);
+   showUsers();
+});
 
-const button = document.getElementById("addAlbumButton");
-const albums= document.getElementsByClassName("albums")[0];
-
-button.addEventListener("click",function(){
-
-    const image = document.getElementById("imageURL").value;
-    const description = document.getElementById("description").value;
-    const time = document.getElementById("time").value;
-
-
-    const album=createNewAlbum(image,description,time);
-
-    albums.appendChild(album);
-
-
-})
-
-function createNewAlbum(imageURL,description,time){
-
-    const albumDiv=document.createElement('div');
-    albumDiv.className="album";
-
-    const thumbNailDiv=document.createElement('div');
-    thumbNailDiv.className="thumbnail";
-    const image= document.createElement('img');
-    image.setAttribute('src',imageURL);
-    thumbNailDiv.appendChild(image);
-
-
-    const details=document.createElement('div');
-    details.className="details";
-
-
-    const para=document.createElement('p');
-    para.textContent=description;
-
-    const detailsFooter=document.createElement('div');
-    detailsFooter.className="details-footer";
-
-    const buttonsDiv=document.createElement('div');
-    const button1=document.createElement('button');
-    button1.textContent="View";
-    const button2=document.createElement('button');
-    button2.textContent="Edit";
-
-    buttonsDiv.appendChild(button1);
-    buttonsDiv.appendChild(button2);
-
-    const timeElement=document.createElement('span');
-    timeElement.textContent=time+ " min";
-
-    detailsFooter.appendChild(buttonsDiv);
-    detailsFooter.appendChild(timeElement);
-
-    details.appendChild(para);
-    details.appendChild(detailsFooter);
-
-
-    albumDiv.appendChild(thumbNailDiv);
-    albumDiv.appendChild(details);
-
-    return albumDiv;
+function removeotherusers(){
+    allUsers.innerHTML='';
 }
+
+fetch("https://dummyapi.io/data/v1/user",{
+    headers:{
+        "app-id":"64c02a1cfeb3de7ea02b75e3"
+    }})
+.then(response=>response.json())
+.then(data=>{
+    allUserData=data.data;
+    loadUsers(data.data);
+    hideloadingmessage();
+    showUsers();
+ } );
+ function hideloadingmessage(){
+    message.style.display="none";
+ }
+ function showUsers(){
+    allUsers.style.display="flex";
+ }
+
+function loadUsers(users){
+    users.forEach((user) => {
+        const userscard=createUserCard(user);
+        allUsers.appendChild(userscard);
+        
+    });
+
+}
+
+function createUserCard(user){
+    const userDiv=document.createElement('div');
+    userDiv.className="user";
+    userDiv.id=user.id;
+
+    const userImageDiv=document.createElement('div');
+    userImageDiv.className="user-image";
+    const imageElement=document.createElement('img');
+    imageElement.setAttribute("src",user.picture);
+    userImageDiv.appendChild(imageElement);
+    const userDetailsDiv=document.createElement('div');
+    userDetailsDiv.className="user-details";
+    const heading=document.createElement('h1');
+    heading.textContent='${user.title} ${user.firstName} ${user.lastName}';
+    userDetailsDiv.appendChild(heading);
+    const button=document.createElement('button');
+    button.textContent="See Complete Details";
+    userDiv.appendChild(userImageDiv);
+    userDiv.appendChild(userDetailsDiv);
+    userDiv.appendChild(button);
+    return userDiv;
+
+
+
+}
+
+
+

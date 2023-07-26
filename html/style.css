@@ -21,44 +21,34 @@
 
 }
 
-#addAlbum{
-    width:40%;
-    border: 3px solid greenyellow;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 10px;
-}
-.Album{
+.users{
     border: 3px solid red;
-    background-color: whitesmoke;
-    display:flex;
+    display: none;
     flex-wrap: wrap;
 }
-.albums{
-    border: 1px solid black;
-    width:300px;
+
+
+.user{
+    border: 3px solid firebrick;
     display: flex;
     flex-direction: column;
+    width: 300px;
+    justify-content: center;
     align-items: center;
-    border-radius: 4px;
     margin: 10px;
 }
-.albums .details p{
+.user button{
+    background-color: black;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+}
+.message{
+    
     text-align: center;
 }
-.albums .details{
-    
-    display:flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 5px;
-}
-.albums .details .details-footer{
-    
+
+.search-field{
     display: flex;
-    width:100%;
-    justify-content: space-between;
-    padding: 5px;
-    
+    justify-content: center;
 }
