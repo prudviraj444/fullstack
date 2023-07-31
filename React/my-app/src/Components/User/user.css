@@ -1,0 +1,6 @@
+.userCard{
+    border: 3px solid red;
+    width: 300px;
+    display: flex;
+    margin: 20px;
+}
