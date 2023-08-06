@@ -1,84 +1,136 @@
 var express= require("express");
 var bodyParser = require('body-parser')
-const random = require('random');
-const res = require("express/lib/response");
+
+var mongoose = require("mongoose");
+const random = require('random')
+mongoose.connect('mongodb+srv://utmalik:qwerty123@cluster0.aoubknq.mongodb.net/?retryWrites=true&w=majority');
+var app=express();
+app.use(bodyParser.json())
+
+var db=mongoose.connection;
+
+db.on("error",()=>{
+    console.log("Unable to connect to DB");
+})
+db.once('open',()=>{
+    console.log("Connection successful");
+})
+const blogSchema = new mongoose.Schema({
+    id: Number,
+    title:  String, 
+    author: String,
+    body:   String,
+    comments: [{ body: String, date: Date }],
+    date: { type: Date, default: Date.now },
+    hidden: Boolean,
+    meta: {
+      votes: Number,
+      favs:  Number
+    }
+  });
+  const Blog= mongoose.model('Blog',blogSchema);
+ //    POST      /api/blogs 
+  //    GET       /api/blogs
+  //    GET       /api/blogs/:id
+  //    PUT       /api/blogs/:id 
+  //    DELETE    /api/blogs/:id
+  //    DELETE    /api/blogs
+  app.post('/api/blogs',(req,res)=>{
+
+    const {title,author,body}=req.body;
+    const id=random.int(0, 10000000);
+    const comments=[];
+    const meta={
+        votes:0,
+        favs:0
+    };
+
+    const newBlog= new Blog({title,author,body,id,comments,meta});
+    newBlog.save()
+    .then((data)=>{
+        if(!data){
+            res.status(400).send({mesage:"Something went wrong"});
+        }
+        res.send(data);
+    })
+    .catch((err)=>{
+        res.status(500).send({mesage:"DB Server not available"});
+    })
+  })
+  app.get('/api/blogs',(req,res)=>{
+    Blog.find({})
+    .then((data)=>{
+        if(!data){
+            res.status(404).send({mesage:"Unable to retireve blogs"});
+        }
+        res.send(data);
+    })
+    .catch((err)=>{
+        res.status(500).send({message:err});
+    })
+})
+
+
+app.get('/api/blogs/:id',(req,res)=>{
+
+ var _id= mongoose.Types.ObjectId(req.params.id);
+
+ Blog.find({_id})
+ .then((data)=>{
+     if(!data || !data.length){
+         res.status(404).send({mesage:"Unable to retireve blogs"});
+     }
+     res.send(data);
+    })
+    .catch((err)=>{
+        res.status(500).send({message:err});
+    })
+  })
+  app.put('/api/blogs/:id',(req,res)=>{
+
+    //findByIdAndUpdate
+
+  })
+  app.delete('/api/blogs/:id',(req,res)=>{
+//findByIdAndDelete
+})
+app.delete('/api/blogs',(req,res)=>{
+     //deleteMany
+  })
+  app.listen(8001,()=>{
+    console.log("your server is running on port 8001");
+})
+
+
+mongoose.connect('mongodb+srv://prudhvirajchavali:qwerty4@cluster1.tq5y4vf.mongodb.net/?retryWrites=true&w=majority');
 
 var app=express();
 
-app.use(bodyParser.json());
+var db=mongoose.connection;
 
-//CRUD
+db.on("error",()=>{
+    console.log("error in connection");
+})
 
-var users=[
-    {id:1341235,name:"Utkarsh",age:27},
-    {id:293745134,name:"Rahul",age:33},
-    {id:23525,name:"Pawan",age:35},
-    {id:2351541,name:"Shreya",age:22}
-];
+db.once('open',()=>{
+    console.log("connection successful");
+})
 
+var schema=new mongoose.Schema({name:String,size:String});
 
-app.get('/api/users',(req,res)=>{
-    res.json(users);
+var Tank=mongoose.model('Tank',schema);
+
+var tank1=new Tank({name:"first",size:"20"});
+
+tank1.save()
+.then((res)=>{
+console.log(res);})
+.catch((err)=>{
+    console.log(err);
 })
 
 
-//user should be able to get a user by its id
-app.get('/api/users/:id',(req,res)=>{
 
-    const id= parseInt(req.params.id);
-
-    const user=users.find((user)=>user.id===id);
-
-    if(!user){
-        res.status(404).json({message:"User doesnot exists"});
-    }
-
-    res.send(user);
-})
-app.post('/api/users',(req,res)=>{
-
-    if(!req.body.name || !req.body.age){
-        res.status(400).json({message:"Invalid data!"});
-    }
-
-    const user={name:req.body.name,age:req.body.age,id:random.int(1,10000000)};
-    users.push(user);
-    res.json(user);
-})
-app.put('/api/users/:id',(req,res)=>{
-
-    const id=req.params.id;
-    const user=users.find((user)=>user.id===parseInt(id));
-    if(!user){
-        res.status(404).send({message:"Invalid user id"});
-    }
-    const keys=Object.keys(req.body);
-    console.log(keys);
-
-    keys.forEach((key)=>{
-        if(!user[key]){
-            res.status(400).send({message:"Invalid details passed in the body"});
-        }
-        user[key]=req.body[key];
-    })
-    res.send(user);
-})
-//delete on the basis of id 
-
-app.delete('/api/users/:id',(req, res)=>{
-
-    const id=req.params.id;
-    const user=users.find((user)=>user.id===parseInt(id));
-
-    if(!user){
-        res.status(404).send({message:"Invalid user id"});
-    }
-
-    users=users.filter((user)=>user.id!==parseInt(id));
-    res.send(user);
-})
-
-
-app.listen(345677,()=>{
+app.listen(3080,()=>{
     console.log("your server is running on port 8000");
 })
